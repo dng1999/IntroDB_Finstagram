@@ -1,4 +1,4 @@
-CREATE TABLE person(
+CREATE TABLE Person(
     username VARCHAR(20), 
     password CHAR(64), 
     fname VARCHAR(20),
@@ -6,7 +6,7 @@ CREATE TABLE person(
     PRIMARY KEY (username)
 );
 
-CREATE TABLE photo(
+CREATE TABLE Photo(
     photoID int NOT NULL AUTO_INCREMENT,
     timestamp Timestamp,
     filePath VARCHAR(2048),

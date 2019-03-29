@@ -1,4 +1,6 @@
-# IntroDB_Finstagram
-The course project this semester is ​Finstagram​, a web application for sharing photos.Finstagram gives users more privacy than many photo sharing sites by giving them moredetailed control over who can see which photos they post. The focus of the project will be onstoring data about who posted which photos and who has permission to view them, tag othersin them, see who’s tagged in what, etc.
-
-Users will be able to log in, post photos, view (some of) the photos posted by others (publicphotos, photos posted by people they are `​following​`, and close friends, detailed below);​ `tag​`photos items with handles of people, etc. In part 1 of the project, you will design an ER diagramfor the database. In part 2, you will convert my E-R diagram, which I will post after Part 1 is due,to a relational schema and write table definitions in SQL. Part 3 is a milestone to guarantee thatyou’re making progress: using my table definitions, which I will post after Part 2 is due, you willwrite and test some of your SQL queries and some application source code. Part 4 will be themost work:  you will revise your queries from part 3, if necessary, and write and test the rest ofthe application code for the system. A detailed specification will be provided shortly after part 2is due. Near the end of the semester you will schedule a demo/test session in which yourFinstagram application will be tested.
+# finstagram-template
+Instructions to run:
+```
+pip install -r requirements
+python app.py
+```
