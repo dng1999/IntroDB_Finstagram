@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Mar 30, 2019 at 01:34 AM
+-- Generation Time: Mar 30, 2019 at 03:13 AM
 -- Server version: 5.7.23
 -- PHP Version: 7.2.10
 
@@ -97,7 +97,7 @@ CREATE TABLE `Person` (
 --
 
 INSERT INTO `Person` (`username`, `password`, `fname`, `lname`, `avatar`, `bio`, `isPrivate`, `displayTimestamp`, `displayTagged`) VALUES
-('rainymood', 'b7e57fa71a8e6dfba720495031f1fb442fd7bf60bb620e93e91fadab8d5e2ef2', 'Tomoyo', 'Naka', NULL, NULL, NULL, 0, 0);
+('rainymood', 'b7e57fa71a8e6dfba720495031f1fb442fd7bf60bb620e93e91fadab8d5e2ef2', 'Tomoyo', 'Naka', NULL, NULL, NULL, 1, 0);
 
 -- --------------------------------------------------------
 
