@@ -155,11 +155,11 @@ def changeSettings():
         if (data[7]==displayTagged && data[8]==displayTimestamp):
             return redirect(url_for("home"))
 
-        error = "Settings did not save"
+        error = "Settings did not save."
         return render_template("settings.html", error=error)
 
     error = "An unknown error has occurred. Please try again."
-    return render_template("settings.html")
+    return render_template("settings.html", error=error)
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):
