@@ -50,7 +50,12 @@ def images():
     with connection.cursor() as cursor:
         cursor.execute(query)
     data = cursor.fetchall()
-    return render_template("images.html", images=data)
+
+    query = "SELECT * FROM person WHERE username=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"]))
+    settings = cursor.fetchone()
+    return render_template("images.html", images=data, settings=settings)
 
 @app.route("/image/<image_name>", methods=["GET"])
 def image(image_name):
@@ -136,23 +141,29 @@ def upload_image():
 @app.route("/settings", methods=["GET"])
 @login_required
 def settings():
-    return render_template("settings.html")
+    query = "SELECT * FROM person WHERE username=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"]))
+    data = cursor.fetchone()
+    return render_template("settings.html", settings=data)
 
-@app.route("/changeSettings", methods=["GET"])
+@app.route("/changeSettings", methods=["POST"])
 def changeSettings():
     if request.form:
         requestData = request.form
-        displayTagged = request.form["displayTagged"]
-        displayTimestamp = request.form["displayTimestamp"]
+        if (requestData.get("displayTagged")): displayTagged = 1
+        else: displayTagged = 0
+        if (requestData.get("displayTimestamp")): displayTimestamp = 1
+        else: displayTimestamp = 0
 
         with connection.cursor() as cursor:
-            query = "UPDATE person SET displayTagged=%d, displayTimestamp=%d WHERE username=%s"
-            cursor.execute(query, (displayTagged, displayTimestamp,session["username"]))
+            query = "UPDATE person SET displayTagged=%s, displayTimestamp=%s WHERE username=%s"
+            cursor.execute(query, (displayTagged, displayTimestamp, session["username"]))
 
-        query = "SELECT * FROM person WHERE username = %s"
-        cursor.execute(query, (session["username"]))
-        data = cursor.fetchone()
-        if (data[7]==displayTagged and data[8]==displayTimestamp):
+            query = "SELECT * FROM person WHERE username = %s"
+            cursor.execute(query, (session["username"]))
+            data = cursor.fetchone()
+        if (data['displayTagged']==displayTagged and data['displayTimestamp']==displayTimestamp):
             return redirect(url_for("home"))
 
         error = "Settings did not save."

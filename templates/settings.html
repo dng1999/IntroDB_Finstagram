@@ -5,11 +5,11 @@
     <body>
         <h1>Settings</h1>
         <div>
-          <form action="/changeSettings" method="get">
+          <form action="/changeSettings" method="post">
             <b>Display</b>
-            <input type="checkbox" name="displayTimestamp"> <label>Timestamp</label>
-            <input type="checkbox" name="displayTagged"> <label>Tagged People</label>
-            <input type="submit" value="settings">
+            <input type="checkbox" name="displayTimestamp" {% if settings.displayTimestamp %}checked{% endif %}> <label>Timestamp</label>
+            <input type="checkbox" name="displayTagged" {% if settings.displayTagged %}checked{% endif %}> <label>Tagged People</label>
+            <input type="submit" value="Save">
           </form>
           {% if error %}
             {{ error }}

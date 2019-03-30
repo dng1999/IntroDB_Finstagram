@@ -11,8 +11,8 @@
               <td><img src="/image/{{image.filePath}}" width="300"/></td>
               <td>
                 <b>ID:</b> {{image.photoID}}
-                <br>Posted by {{image.photoOwner}}{% if displayTimestamp %} on {{image.timestamp}}{% endif %}
-                {% if displayTagged %} {{image.tagged}}{% endif %}
+                <br>Posted by {{image.photoOwner}}{% if settings.displayTimestamp %} on {{image.timestamp}}{% endif %}
+                {% if settings.displayTagged %}<br>Tagged:{% endif %}
                 <br>{{image.caption}}
               </td>
             </tr>
