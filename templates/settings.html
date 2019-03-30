@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>Finstagram</title>
+    </head>
+    <body>
+        <h1>Settings</h1>
+        <div>
+          <form action="/changeSettings" method="get">
+            <b>Display</b>
+            <input type="checkbox" name="displayTimestamp"> <label>Timestamp</label>
+            <input type="checkbox" name="displayTagged"> <label>Tagged People</label>
+            <input type="submit" value="settings">
+          </form>
+          {% if error %}
+            {{ error }}
+          {% endif %}
+        </div>
+        <a href="/">Go back</a>
+    </body>
+</html>
