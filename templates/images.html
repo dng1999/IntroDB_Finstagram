@@ -5,10 +5,18 @@
     <body>
         <h1>Image Gallery</h1>
         <div>
+          <table>
             {% for image in images %}
-
-            <img src="/image/{{image.filePath}}" width="300"/>
+            <tr>
+              <td><img src="/image/{{image.filePath}}" width="300"/></td>
+              <td>
+                <b>ID:</b> {{image.photoID}}
+                <br>Posted by {{image.photoOwner}}
+                <br>{{image.caption}}
+              </td>
+            </tr>
             {% endfor %}
+          </table>
         </div>
         <a href="/">Go back</a>
     </body>

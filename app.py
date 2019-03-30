@@ -12,10 +12,10 @@ IMAGES_DIR = os.path.join(os.getcwd(), "images")
 
 connection = pymysql.connect(host="localhost",
                              user="root",
-                             password="",
+                             password="root",
                              db="finsta",
                              charset="utf8mb4",
-                             port=3306,
+                             port=8889,
                              cursorclass=pymysql.cursors.DictCursor,
                              autocommit=True)
 
@@ -97,14 +97,14 @@ def registerAuth():
         hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
         firstName = requestData["fname"]
         lastName = requestData["lname"]
-        
+
         try:
             with connection.cursor() as cursor:
                 query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
                 cursor.execute(query, (username, hashedPassword, firstName, lastName))
         except pymysql.err.IntegrityError:
             error = "%s is already taken." % (username)
-            return render_template('register.html', error=error)    
+            return render_template('register.html', error=error)
 
         return redirect(url_for("login"))
 
@@ -132,6 +132,34 @@ def upload_image():
     else:
         message = "Failed to upload image."
         return render_template("upload.html", message=message)
+
+@app.route("/settings", methods=["GET"])
+@login_required
+def settings():
+    return render_template("settings.html")
+
+@app.route("/changeSettings", methods=["GET"])
+def changeSettings():
+    if request.form:
+        requestData = request.form
+        displayTagged = request.form["displayTagged"]
+        displayTimestamp = request.form["displayTimestamp"]
+
+        with connection.cursor() as cursor:
+            query = "UPDATE person SET displayTagged=%d, displayTimestamp=%d WHERE username=%s"
+            cursor.execute(query, (displayTagged, displayTimestamp,session["username"]))
+
+        query = "SELECT * FROM person WHERE username = %s"
+        cursor.execute(query, (session["username"]))
+        data = cursor.fetchone()
+        if (data[7]==displayTagged && data[8]==displayTimestamp):
+            return redirect(url_for("home"))
+
+        error = "Settings did not save"
+        return render_template("settings.html", error=error)
+
+    error = "An unknown error has occurred. Please try again."
+    return render_template("settings.html")
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):
