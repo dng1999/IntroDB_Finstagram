@@ -1,0 +1,5 @@
+Dorothy[3/29/2019]
+  - added ability to see timestamp and see tagged people on photos.
+    > added settings and changeSettings function in app.py
+    > added settings.html template
+    > modified images.html to reflect user settings
