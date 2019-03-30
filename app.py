@@ -152,7 +152,7 @@ def changeSettings():
         query = "SELECT * FROM person WHERE username = %s"
         cursor.execute(query, (session["username"]))
         data = cursor.fetchone()
-        if (data[7]==displayTagged && data[8]==displayTimestamp):
+        if (data[7]==displayTagged and data[8]==displayTimestamp):
             return redirect(url_for("home"))
 
         error = "Settings did not save."
