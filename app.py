@@ -63,6 +63,23 @@ def image(image_name):
     if os.path.isfile(image_location):
         return send_file(image_location, mimetype="image/jpg")
 
+@app.route("/follow", methods=["GET"])
+@login_required
+def follow():
+
+    query1 = "SELECT * FROM follow WHERE followeeUsername=%s and acceptedfollow = 1"
+    with connection.cursor() as cursor:
+        cursor.execute(query1, (session["username"]))
+    followee = cursor.fetchall()
+    query2 = "SELECT * FROM follow WHERE followerUsername=%s and acceptedfollow = 1"
+    with connection.cursor() as cursor2:
+        cursor2.execute(query2, (session["username"]))
+    follower = cursor2.fetchall()
+    print(follower,followee)
+    return render_template("f.html", followers=follower,followees =followee)
+
+
+
 @app.route("/login", methods=["GET"])
 def login():
     return render_template("login.html")
@@ -81,8 +98,7 @@ def loginAuth():
 
         with connection.cursor() as cursor:
             query = "SELECT * FROM person WHERE username = %s AND password = %s"
-            cursor.execute(query, (username, plaintextPasword))
-            print(username,plaintextPasword)
+            cursor.execute(query, (username, plaintextPasword ))
         data = cursor.fetchone()
         if data:
             session["username"] = username

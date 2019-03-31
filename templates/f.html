@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>Finstagram</title>
+    </head>
+    <body>
+        <h1>Followers</h1>
+        <table>
+                {% for follower in followers %}
+                <p> {{follower.followeeUsername}}<p>
+            {% endfor %}  
+          </table>
+          <h1>Followees</h1>
+          <table>
+              {% for followee in followees %}
+                  <p> {{followee.followerUsername}}<p>
+              {% endfor %}  
+            </table>
+    </body>
+</html>
