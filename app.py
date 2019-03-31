@@ -81,7 +81,8 @@ def loginAuth():
 
         with connection.cursor() as cursor:
             query = "SELECT * FROM person WHERE username = %s AND password = %s"
-            cursor.execute(query, (username, hashedPassword))
+            cursor.execute(query, (username, plaintextPasword))
+            print(username,plaintextPasword)
         data = cursor.fetchone()
         if data:
             session["username"] = username
@@ -115,6 +116,7 @@ def registerAuth():
 
     error = "An error has occurred. Please try again."
     return render_template("register.html", error=error)
+    
 
 @app.route("/logout", methods=["GET"])
 def logout():

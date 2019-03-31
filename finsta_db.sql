@@ -82,7 +82,7 @@ CREATE TABLE `Liked` (
 
 CREATE TABLE `Person` (
   `username` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` char(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fname` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `lname` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `avatar` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
