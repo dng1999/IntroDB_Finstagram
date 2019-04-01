@@ -75,8 +75,12 @@ def follow():
     with connection.cursor() as cursor2:
         cursor2.execute(query2, (session["username"]))
     follower = cursor2.fetchall()
-    print(follower,followee)
-    return render_template("f.html", followers=follower,followees =followee)
+    query3 = "SELECT * FROM follow WHERE followeeUsername=%s and acceptedfollow is NULL"
+    with connection.cursor() as cursor3:
+        cursor3.execute(query3, (session["username"]))
+    waitlist = cursor3.fetchall()
+    print(waitlist)
+    return render_template("follow.html", followers=follower,followees =followee,waits = waitlist)
 
 
 
@@ -116,22 +120,36 @@ def registerAuth():
         requestData = request.form
         username = requestData["username"]
         plaintextPasword = requestData["password"]
-        hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
+        #hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
         firstName = requestData["fname"]
         lastName = requestData["lname"]
 
         try:
             with connection.cursor() as cursor:
                 query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
-                cursor.execute(query, (username, hashedPassword, firstName, lastName))
+                cursor.execute(query, (username, plaintextPasword, firstName, lastName))
         except pymysql.err.IntegrityError:
             error = "%s is already taken." % (username)
             return render_template('register.html', error=error)
 
         return redirect(url_for("login"))
 
-    error = "An error has occurred. Please try again."
-    return render_template("register.html", error=error)
+@app.route("/searchuser", methods=["POST"])
+def searchuser():
+    if request.form:
+        requestData = request.form
+        username = requestData["username"]
+
+        try:
+            with connection.cursor() as cursor:
+                query = "INSERT INTO Follow (followerUsername,followeeUsername,acceptedfollow) VALUES (%s, %s,%s)"
+                cursor.execute(query, (username,session["username"],None))
+        except pymysql.err.IntegrityError:
+            error = "You already follow %s" % (username)
+            return render_template('follow', error=error)
+
+        return redirect(url_for("follow"))
+
     
 
 @app.route("/logout", methods=["GET"])
@@ -189,6 +207,20 @@ def changeSettings():
 
     error = "An unknown error has occurred. Please try again."
     return render_template("settings.html", error=error)
+
+@app.route('/acceptfollow/<followeruser>',methods = ["POST"])
+def acceptf(followeruser):
+	with connection.cursor() as cursor:
+	    query = 'UPDATE Follow SET acceptedfollow = 1 WHERE followerUsername = %s AND followeeUsername = %s'
+	    cursor.execute(query, (followeruser, session["username"]))
+	return redirect(url_for('follow'))
+
+@app.route('/declinefollow/<followeruser>',methods = ["POST"])
+def declinef(followeruser):
+	with connection.cursor() as cursor:
+	    query = 'UPDATE Follow SET acceptedfollow = 0 WHERE followerUsername = %s AND followeeUsername = %s'
+	    cursor.execute(query, (followeruser, session["username"]))
+	return redirect(url_for('follow'))
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):
