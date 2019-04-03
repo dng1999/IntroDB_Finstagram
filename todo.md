@@ -16,3 +16,5 @@ Extra Features:
 - Unfollow user.
 - Search by tag.
 - Search by poster.
+- More secure registration (need email to register).
+- Forgot password?
