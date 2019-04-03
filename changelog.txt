@@ -1,3 +1,9 @@
+Dorothy[4/3/2019]
+  - fixed view images in app.py
+    > now in descending order
+    > only displays images (no info) in the gallery --> must click on image to see info
+  - added viewImage.html for viewing image info
+
 Dorothy[3/29/2019]
   - added ability to see timestamp and see tagged people on photos.
     > added settings and changeSettings function in app.py
