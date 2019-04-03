@@ -10,3 +10,9 @@ Rachel:
 
 Extra Features:
 - Delete photos functionality.
+- Add comment.
+- Like photo/see liked photos.
+- Follow request if account is private, otherwise no need to get approval for public account.
+- Unfollow user.
+- Search by tag.
+- Search by poster.
