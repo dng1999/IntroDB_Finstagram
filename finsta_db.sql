@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Mar 30, 2019 at 03:13 AM
+-- Generation Time: Apr 03, 2019 at 05:26 PM
 -- Server version: 5.7.23
 -- PHP Version: 7.2.10
 
@@ -26,6 +26,14 @@ CREATE TABLE `Belong` (
   `username` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `Belong`
+--
+
+INSERT INTO `Belong` (`groupName`, `groupOwner`, `username`) VALUES
+('mood', 'rainymood', 'a'),
+('mood', 'rainymood', 'rainymood');
+
 -- --------------------------------------------------------
 
 --
@@ -36,6 +44,13 @@ CREATE TABLE `CloseFriendGroup` (
   `groupName` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `groupOwner` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `CloseFriendGroup`
+--
+
+INSERT INTO `CloseFriendGroup` (`groupName`, `groupOwner`) VALUES
+('mood', 'rainymood');
 
 -- --------------------------------------------------------
 
@@ -62,6 +77,14 @@ CREATE TABLE `Follow` (
   `acceptedfollow` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `Follow`
+--
+
+INSERT INTO `Follow` (`followerUsername`, `followeeUsername`, `acceptedfollow`) VALUES
+('a', 'rainymood', 1),
+('rainymood', 'a', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -82,7 +105,7 @@ CREATE TABLE `Liked` (
 
 CREATE TABLE `Person` (
   `username` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password` char(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fname` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `lname` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `avatar` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -97,6 +120,7 @@ CREATE TABLE `Person` (
 --
 
 INSERT INTO `Person` (`username`, `password`, `fname`, `lname`, `avatar`, `bio`, `isPrivate`, `displayTimestamp`, `displayTagged`) VALUES
+('a', 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb', 'a', 'a', NULL, NULL, NULL, 0, 0),
 ('rainymood', 'b7e57fa71a8e6dfba720495031f1fb442fd7bf60bb620e93e91fadab8d5e2ef2', 'Tomoyo', 'Naka', NULL, NULL, NULL, 1, 0);
 
 -- --------------------------------------------------------
@@ -111,15 +135,18 @@ CREATE TABLE `Photo` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `filePath` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `caption` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `allFollowers` tinyint(1) DEFAULT NULL
+  `allFollowers` tinyint(1) DEFAULT NULL,
+  `groupName` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `groupOwner` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `Photo`
 --
 
-INSERT INTO `Photo` (`photoID`, `photoOwner`, `timestamp`, `filePath`, `caption`, `allFollowers`) VALUES
-(1, NULL, '2019-03-29 23:32:43', 'rabbit.png', NULL, NULL);
+INSERT INTO `Photo` (`photoID`, `photoOwner`, `timestamp`, `filePath`, `caption`, `allFollowers`, `groupName`, `groupOwner`) VALUES
+(1, 'a', '2019-04-03 16:28:14', 'rabbit.png', NULL, 1, 'mood', 'rainymood'),
+(2, 'a', '2019-04-03 16:48:59', 'fullsizeoutput_4.jpeg', NULL, 1, 'mood', 'rainymood');
 
 -- --------------------------------------------------------
 
@@ -195,7 +222,8 @@ ALTER TABLE `Person`
 --
 ALTER TABLE `Photo`
   ADD PRIMARY KEY (`photoID`),
-  ADD KEY `photoOwner` (`photoOwner`);
+  ADD KEY `photoOwner` (`photoOwner`),
+  ADD KEY `cf_group` (`groupName`,`groupOwner`);
 
 --
 -- Indexes for table `Share`
@@ -219,7 +247,7 @@ ALTER TABLE `Tag`
 -- AUTO_INCREMENT for table `Photo`
 --
 ALTER TABLE `Photo`
-  MODIFY `photoID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `photoID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -263,6 +291,7 @@ ALTER TABLE `Liked`
 -- Constraints for table `Photo`
 --
 ALTER TABLE `Photo`
+  ADD CONSTRAINT `cf_group` FOREIGN KEY (`groupName`,`groupOwner`) REFERENCES `CloseFriendGroup` (`groupName`, `groupOwner`),
   ADD CONSTRAINT `photo_ibfk_1` FOREIGN KEY (`photoOwner`) REFERENCES `Person` (`username`);
 
 --
