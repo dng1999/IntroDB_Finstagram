@@ -67,11 +67,11 @@ def image(image_name):
 @login_required
 def follow():
 
-    query1 = "SELECT * FROM follow WHERE followeeUsername=%s and acceptedfollow = 1"
+    query1 = "SELECT * FROM follow WHERE followerUsername=%s and acceptedfollow = 1"
     with connection.cursor() as cursor:
         cursor.execute(query1, (session["username"]))
     followee = cursor.fetchall()
-    query2 = "SELECT * FROM follow WHERE followerUsername=%s and acceptedfollow = 1"
+    query2 = "SELECT * FROM follow WHERE followeeUsername=%s and acceptedfollow = 1"
     with connection.cursor() as cursor2:
         cursor2.execute(query2, (session["username"]))
     follower = cursor2.fetchall()
@@ -79,7 +79,6 @@ def follow():
     with connection.cursor() as cursor3:
         cursor3.execute(query3, (session["username"]))
     waitlist = cursor3.fetchall()
-    print(waitlist)
     return render_template("follow.html", followers=follower,followees =followee,waits = waitlist)
 
 
@@ -143,10 +142,10 @@ def searchuser():
         try:
             with connection.cursor() as cursor:
                 query = "INSERT INTO Follow (followerUsername,followeeUsername,acceptedfollow) VALUES (%s, %s,%s)"
-                cursor.execute(query, (username,session["username"],None))
+                cursor.execute(query, (session["username"],username,None))
         except pymysql.err.IntegrityError:
             error = "You already follow %s" % (username)
-            return render_template('follow', error=error)
+            return render_template('follow.html', error=error)
 
         return redirect(url_for("follow"))
 
