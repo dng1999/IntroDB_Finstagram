@@ -7,3 +7,6 @@ Selina:
 
 Rachel:
 - Manage Follows: (a) User enters the username of someone they want to follow. Finstagram adds anappropriate tuple to Follow, with acceptedFollow == False. (b)User sees list of requests others has made to follow them and has opportunity toaccept, by setting acceptFollow to True or to decline by removing the requestfrom the Follow table.
+
+Extra Features:
+- Delete photos functionality.
