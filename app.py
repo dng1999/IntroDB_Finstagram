@@ -143,9 +143,8 @@ def searchuser():
             with connection.cursor() as cursor:
                 query = "INSERT INTO Follow (followerUsername,followeeUsername,acceptedfollow) VALUES (%s, %s,%s)"
                 cursor.execute(query, (session["username"],username,None))
-        except pymysql.err.IntegrityError:
-            error = "You already follow %s" % (username)
-            return render_template('follow.html', error=error)
+        except pymysql.Error:
+            return redirect(url_for("follow"))
 
         return redirect(url_for("follow"))
 
