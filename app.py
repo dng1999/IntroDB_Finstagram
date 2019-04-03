@@ -102,7 +102,7 @@ def loginAuth():
 
         with connection.cursor() as cursor:
             query = "SELECT * FROM person WHERE username = %s AND password = %s"
-            cursor.execute(query, (username, plaintextPasword ))
+            cursor.execute(query, (username, hashedPassword ))
         data = cursor.fetchone()
         if data:
             session["username"] = username
@@ -120,14 +120,14 @@ def registerAuth():
         requestData = request.form
         username = requestData["username"]
         plaintextPasword = requestData["password"]
-        #hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
+        hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
         firstName = requestData["fname"]
         lastName = requestData["lname"]
 
         try:
             with connection.cursor() as cursor:
                 query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
-                cursor.execute(query, (username, plaintextPasword, firstName, lastName))
+                cursor.execute(query, (username,hashedPassword  , firstName, lastName))
         except pymysql.err.IntegrityError:
             error = "%s is already taken." % (username)
             return render_template('register.html', error=error)
