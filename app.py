@@ -46,16 +46,26 @@ def upload():
 @app.route("/images", methods=["GET"])
 @login_required
 def images():
-    query = "SELECT * FROM photo"
+    query = "SELECT filePath, photoID FROM Photo WHERE photoOwner=%s OR (filepath, photoID) IN (SELECT filepath, photoID FROM Photo NATURAL JOIN Belong WHERE username=%s) OR (filepath, photoID) IN (SELECT filepath, photoID FROM Follow JOIN Photo ON(photoOwner=followeeUsername) WHERE followerUsername=%s) ORDER BY timestamp DESC"
     with connection.cursor() as cursor:
-        cursor.execute(query)
+        cursor.execute(query, (session["username"],session["username"],session["username"]))
     data = cursor.fetchall()
+
+    return render_template("images.html", images=data)
+
+@app.route("/images/<photoID>", methods=["GET"])
+def viewImageInfo(photoID):
+    query = "SELECT * FROM Photo WHERE photoID=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID))
+    data = cursor.fetchone()
 
     query = "SELECT * FROM person WHERE username=%s"
     with connection.cursor() as cursor:
         cursor.execute(query, (session["username"]))
     settings = cursor.fetchone()
-    return render_template("images.html", images=data, settings=settings)
+
+    return render_template("viewImage.html", image=data, settings=settings)
 
 @app.route("/image/<image_name>", methods=["GET"])
 def image(image_name):
@@ -148,7 +158,7 @@ def searchuser():
 
         return redirect(url_for("follow"))
 
-    
+
 
 @app.route("/logout", methods=["GET"])
 def logout():

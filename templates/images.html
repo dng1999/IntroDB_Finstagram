@@ -5,19 +5,10 @@
     <body>
         <h1>Image Gallery</h1>
         <div>
-          <table>
             {% for image in images %}
-            <tr>
-              <td><img src="/image/{{image.filePath}}" width="300"/></td>
-              <td>
-                <b>ID:</b> {{image.photoID}}
-                <br>Posted by {{image.photoOwner}}{% if settings.displayTimestamp %} on {{image.timestamp}}{% endif %}
-                {% if settings.displayTagged %}<br>Tagged:{% endif %}
-                <br>{{image.caption}}
-              </td>
-            </tr>
+
+            <a href="/images/{{image.photoID}}"><img src="/image/{{image.filePath}}" width="300"/></a>
             {% endfor %}
-          </table>
         </div>
         <a href="/">Go back</a>
     </body>
