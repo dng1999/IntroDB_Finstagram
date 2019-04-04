@@ -2,6 +2,7 @@ Dorothy[4/3/2019]
   - fixed view images in app.py
     > now in descending order
     > only displays images (no info) in the gallery --> must click on image to see info
+    > show tagged people
   - added viewImage.html for viewing image info
 
 Dorothy[3/29/2019]
