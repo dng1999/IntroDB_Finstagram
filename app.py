@@ -203,7 +203,7 @@ def upload_image():
 @app.route("/settings", methods=["GET"])
 @login_required
 def settings():
-    query = "SELECT * FROM person WHERE username=%s"
+    query = "SELECT displayTimestamp, displayTagged FROM person WHERE username=%s"
     with connection.cursor() as cursor:
         cursor.execute(query, (session["username"]))
     data = cursor.fetchone()
@@ -211,28 +211,28 @@ def settings():
 
 @app.route("/changeSettings", methods=["POST"])
 def changeSettings():
-    if request.form:
-        requestData = request.form
-        if (requestData.get("displayTagged")): displayTagged = 1
-        else: displayTagged = 0
-        if (requestData.get("displayTimestamp")): displayTimestamp = 1
-        else: displayTimestamp = 0
+    requestData = request.form
+    if (requestData.get("displayTagged")): displayTagged = 1
+    else: displayTagged = 0
+    if (requestData.get("displayTimestamp")): displayTimestamp = 1
+    else: displayTimestamp = 0
 
+    with connection.cursor() as cursor:
+        query = "UPDATE person SET displayTagged=%s, displayTimestamp=%s WHERE username=%s"
+        cursor.execute(query, (displayTagged, displayTimestamp, session["username"]))
+
+        query = "SELECT * FROM person WHERE username = %s"
+        cursor.execute(query, (session["username"]))
+        data = cursor.fetchone()
+    if (data['displayTagged']==displayTagged and data['displayTimestamp']==displayTimestamp):
+        return redirect(url_for("home"))
+    else:
+        query = "SELECT displayTimestamp, displayTagged FROM person WHERE username=%s"
         with connection.cursor() as cursor:
-            query = "UPDATE person SET displayTagged=%s, displayTimestamp=%s WHERE username=%s"
-            cursor.execute(query, (displayTagged, displayTimestamp, session["username"]))
-
-            query = "SELECT * FROM person WHERE username = %s"
             cursor.execute(query, (session["username"]))
             data = cursor.fetchone()
-        if (data['displayTagged']==displayTagged and data['displayTimestamp']==displayTimestamp):
-            return redirect(url_for("home"))
-
-        error = "Settings did not save."
-        return render_template("settings.html", error=error)
-
-    error = "An unknown error has occurred. Please try again."
-    return render_template("settings.html", error=error)
+        error = "An unknown error has occurred. Please try again."
+        return render_template("settings.html", settings=data, error=error)
 
 @app.route('/acceptfollow/<followeruser>',methods = ["POST"])
 def acceptf(followeruser):
