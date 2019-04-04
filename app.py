@@ -176,13 +176,20 @@ def upload_image():
         image_file = request.files.get("imageToUpload", "")
         image_name = image_file.filename
         userName = session["username"]
+        allFollower = "0"
         
         filepath = os.path.join(IMAGES_DIR, image_name)
         image_file.save(filepath)
-        query = "INSERT INTO Photo (photoOwner, timestamp, filePath) VALUES (%s, %s, %s)"
+        caption = request.form.get('caption')
+        display = request.form.get('display')
+        if display == "All Followers":
+            allFollower = "1"
+        query = "INSERT INTO Photo (photoOwner, timestamp, filePath, caption, allFollowers) VALUES (%s, %s, %s, %s, %s)"
         with connection.cursor() as cursor:
-            cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name))
+            cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower))
         message = "Image has been successfully uploaded."
+    
+        
         return render_template("upload.html", message=message)
     else:
         message = "Failed to upload image."

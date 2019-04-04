@@ -8,10 +8,13 @@
             <form action="/uploadImage" method="post" enctype="multipart/form-data">
                 <input type="file" name="imageToUpload" accept="image/*">
                 <br/>
-              <select name= visibility>
-                <option value = "All Followers"SELECTED>All Followers</option>
+                <input type = "text" name = "caption" placeholder="Enter your captions">
+
+                <br/>
+              <select name = "display">
+                <option name = "All Followers" SELECTED>All Followers</option>
                 {% for name in groupNames%}
-                <option value= "{{name}}">{{name}}</option>"
+                <option name = "{{name}}">{{name}}</option>"
                 {% endfor %}
                 </select>
                 <br/>
@@ -21,6 +24,10 @@
         </div>
         {% if message %}
             {{ message }}
+        {% endif %}
+
+        {% if test %}
+            {{ test }}
         {% endif %}
         <br/>
         <a href="/">Go back</a>
