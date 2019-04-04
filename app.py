@@ -221,7 +221,7 @@ def changeSettings():
         query = "UPDATE person SET displayTagged=%s, displayTimestamp=%s WHERE username=%s"
         cursor.execute(query, (displayTagged, displayTimestamp, session["username"]))
 
-        query = "SELECT * FROM person WHERE username = %s"
+        query = "SELECT displayTagged, displayTimestamp FROM person WHERE username = %s"
         cursor.execute(query, (session["username"]))
         data = cursor.fetchone()
     if (data['displayTagged']==displayTagged and data['displayTimestamp']==displayTimestamp):
