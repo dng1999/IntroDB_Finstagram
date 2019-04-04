@@ -224,7 +224,6 @@ ALTER TABLE `Photo`
   ADD PRIMARY KEY (`photoID`),
   ADD KEY `photoOwner` (`photoOwner`),
   ADD KEY `cf_group` (`groupName`,`groupOwner`);
-
 --
 -- Indexes for table `Share`
 --

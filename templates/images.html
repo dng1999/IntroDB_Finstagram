@@ -10,6 +10,11 @@
             <a href="/images/{{image.photoID}}"><img src="/image/{{image.filePath}}" width="300"/></a>
             {% endfor %}
         </div>
+
+            {% if message %}
+            {{ message }}
+        {% endif %}
+        
         <a href="/">Go back</a>
     </body>
 </html>

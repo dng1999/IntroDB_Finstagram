@@ -41,21 +41,31 @@ def home():
 @app.route("/upload", methods=["GET"])
 @login_required
 def upload():
-    query = "SELECT groupName FROM Belong WHERE username=%s"
+    query = "SELECT groupName, groupOwner FROM Belong WHERE username=%s"
     with connection.cursor() as cursor:
         cursor.execute(query, (session["username"]))
     data = cursor.fetchall()
-    return render_template("upload.html", groupNames = data)
+    return render_template("upload.html", groups = data)
 
 @app.route("/images", methods=["GET"])
 @login_required
 def images():
-    query = "SELECT filePath, photoID FROM Photo WHERE photoOwner=%s OR (filepath, photoID) IN (SELECT filepath, photoID FROM Photo NATURAL JOIN Belong WHERE username=%s) OR (filepath, photoID) IN (SELECT filepath, photoID FROM Follow JOIN Photo ON(photoOwner=followeeUsername) WHERE followerUsername=%s) ORDER BY timestamp DESC"
+    queriesWUserName = [];
+    queriesWUserName.append( "CREATE VIEW self AS SELECT filePath, photoID, timestamp FROM Photo WHERE photoOwner=%s")
+    queriesWUserName.append("CREATE VIEW groups AS SELECT filePath, photoID, timestamp FROM Photo JOIN Belong USING (groupName, groupOwner) WHERE Belong.username = %s")
+    queriesWUserName.append( "CREATE VIEW following AS SELECT filePath, photoID, timestamp FROM Follow JOIN Photo ON(photoOwner=followeeUsername) WHERE followerUsername = %s AND allFollowers = '1'")
+    query= "SELECT DISTINCT filePath, photoID, timestamp FROM (SELECT filePath, photoID, timestamp FROM self UNION ALL SELECT filePath, photoID, timestamp FROM groups UNION ALL SELECT filePath, photoID,timestamp FROM following)AS T ORDER BY timestamp DESC"
     with connection.cursor() as cursor:
-        cursor.execute(query, (session["username"],session["username"],session["username"]))
-    data = cursor.fetchall()
+        for i in range (len(queriesWUserName)):
+            cursor.execute(queriesWUserName[i], session["username"])
+        cursor.execute(query)
+        data = cursor.fetchall()
+        query = "DROP VIEW self, groups, following"
+        cursor.execute(query)
 
     return render_template("images.html", images=data)
+    
+    
 
 @app.route("/images/<photoID>", methods=["GET"])
 def viewImageInfo(photoID):
@@ -173,6 +183,8 @@ def logout():
     session.pop("username")
     return redirect("/")
 
+
+
 @app.route("/uploadImage", methods=["POST"])
 @login_required
 def upload_image():
@@ -181,16 +193,23 @@ def upload_image():
         image_name = image_file.filename
         userName = session["username"]
         allFollower = "0"
-
         filepath = os.path.join(IMAGES_DIR, image_name)
         image_file.save(filepath)
         caption = request.form.get('caption')
         display = request.form.get('display')
         if display == "All Followers":
             allFollower = "1"
-        query = "INSERT INTO Photo (photoOwner, timestamp, filePath, caption, allFollowers) VALUES (%s, %s, %s, %s, %s)"
-        with connection.cursor() as cursor:
-            cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower))
+            query = "INSERT INTO Photo (photoOwner, timestamp, filePath, caption, allFollowers) VALUES (%s, %s, %s, %s, %s)"
+            with connection.cursor() as cursor:
+                cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower))
+        else:
+            result = display.split(",")
+            groupName = result[0].split(":")[1]
+            groupOwner = result[1].split(":")[1]
+            query = "INSERT INTO Photo (photoOwner, timestamp, filePath, caption, allFollowers, groupName, groupOwner) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            with connection.cursor() as cursor:
+                cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower,groupName, groupOwner))
+            
         message = "Image has been successfully uploaded."
 
 
@@ -247,14 +266,7 @@ def declinef(followeruser):
 	    cursor.execute(query, (followeruser, session["username"]))
 	return redirect(url_for('follow'))
 
-@app.route("/CloseFriendGroup", method= ["Get"])
-@login_required
-def closeFriendGroup():
-    query = "SELECT groupName FROM Belong WHERE username=%s"
-    with connection.cursor() as cursor:
-        cursor.execute(query, (session["username"]))
-    data = cursor.fetchall()
-    return render_template("closeFriendsGroup.html", groupNames = data)
+
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):

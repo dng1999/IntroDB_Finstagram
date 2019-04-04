@@ -13,8 +13,9 @@
                 <br/>
               <select name = "display">
                 <option name = "All Followers" SELECTED>All Followers</option>
-                {% for name in groupNames%}
-                <option name = "{{name}}">{{name}}</option>"
+                {% for group in groups%}
+
+                <option name = "group">Group:{{group.groupName}},Group Owner:{{group.groupOwner}}</option>"
                 {% endfor %}
                 </select>
                 <br/>
@@ -26,6 +27,7 @@
             {{ message }}
         {% endif %}
 
+   
 
         <br/>
         <a href="/">Go back</a>
