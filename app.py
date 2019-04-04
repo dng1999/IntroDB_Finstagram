@@ -41,7 +41,11 @@ def home():
 @app.route("/upload", methods=["GET"])
 @login_required
 def upload():
-    return render_template("upload.html")
+    query = "SELECT groupName FROM Belong WHERE username=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"]))
+    data = cursor.fetchall()
+    return render_template("upload.html", groupNames = data)
 
 @app.route("/images", methods=["GET"])
 @login_required
@@ -171,11 +175,13 @@ def upload_image():
     if request.files:
         image_file = request.files.get("imageToUpload", "")
         image_name = image_file.filename
+        userName = session["username"]
+        
         filepath = os.path.join(IMAGES_DIR, image_name)
         image_file.save(filepath)
-        query = "INSERT INTO photo (timestamp, filePath) VALUES (%s, %s)"
+        query = "INSERT INTO Photo (photoOwner, timestamp, filePath) VALUES (%s, %s, %s)"
         with connection.cursor() as cursor:
-            cursor.execute(query, (time.strftime('%Y-%m-%d %H:%M:%S'), image_name))
+            cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name))
         message = "Image has been successfully uploaded."
         return render_template("upload.html", message=message)
     else:
@@ -229,6 +235,7 @@ def declinef(followeruser):
 	    query = 'UPDATE Follow SET acceptedfollow = 0 WHERE followerUsername = %s AND followeeUsername = %s'
 	    cursor.execute(query, (followeruser, session["username"]))
 	return redirect(url_for('follow'))
+
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):
