@@ -136,7 +136,6 @@ def registerAuth():
         hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
         firstName = requestData["fname"]
         lastName = requestData["lname"]
-
         try:
             with connection.cursor() as cursor:
                 query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
@@ -243,6 +242,14 @@ def declinef(followeruser):
 	    cursor.execute(query, (followeruser, session["username"]))
 	return redirect(url_for('follow'))
 
+@app.route("/CloseFriendGroup", method= ["Get"])
+@login_required
+def closeFriendGroup():
+    query = "SELECT groupName FROM Belong WHERE username=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"]))
+    data = cursor.fetchall()
+    return render_template("closeFriendsGroup.html", groupNames = data)
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):

@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <title> Close Friend Groups</title>
+    </head>
+    <body>
+        <h1>Current Group</h1>
+            <form action="/closeFriendGroup">
+            <div name = "currentGroups">
+              {% for group in Own%}
+                <h2>{{group.name}}</h2>
+                &emsp;
+                {% if deleteMessage %}
+                <input type="submit" name = "{{group.name}}" value="Leave">
+                <br>
+                {% endfor %}
+            </div>
+            </form>
+            {% if deleteMessage %}
+                {{ deleteMessage }}
+            {% endif %}
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+        <h1>Join a Close Friend Group</h1>
+        <form action="/closeFriendGroup">
+            <input type= "text" placeholder="Search a Close Freind Group">
+            <input type="submit" value="Search">
+        </form>
+
+        {% if searchFailMessage %}
+            {{ searchFailMessage }}
+
+        {% endif %}
+
+        {% if searchSuccessMessage %}
+            <h2>Group Name</h2>
+            &emsp;
+            <h2>Group Owner</h2>
+            <br>
+            {% for result in searchResult%}
+             <div>
+                <h2>{{result.groupName}}</h2>
+                &emsp; 
+                <h2>{{result.groupOwner}}</h2>
+                <input type="submit" name = "{{name}}" value="Join">
+                <br>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <br>
+        <br>
+        <br>
+        <br>
+        <h1> Create a Close Friend Group</h1>
+        <input type= "text" placeholder="Enter your Group Name">
+        &emsp;
+        <input type="submit" value="Create">
+
+
+
+
+
+        <br/>
+        <a href="/">Go back</a>
+    </body>
+</html>
