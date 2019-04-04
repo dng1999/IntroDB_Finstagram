@@ -11,8 +11,8 @@
               <td>
                 <b>ID:</b> {{image.photoID}}
                 <br>Posted by {{image.photoOwner}}{% if settings.displayTimestamp %} on {{image.timestamp}}{% endif %}
-                {% if settings.displayTagged %}<br>Tagged:{% endif %}
-                <br>{{image.caption}}
+                {% if settings.displayTagged %}<br><b>Tagged: </b>{% for tag in tags %}@{{tag.username}} {% endfor %}{% endif %}
+                <br><b>Caption: </b>{{image.caption}}
               </td>
             </tr>
           </table>

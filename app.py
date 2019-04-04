@@ -64,12 +64,17 @@ def viewImageInfo(photoID):
         cursor.execute(query, (photoID))
     data = cursor.fetchone()
 
-    query = "SELECT * FROM person WHERE username=%s"
+    query = "SELECT displayTimestamp, displayTagged FROM person WHERE username=%s"
     with connection.cursor() as cursor:
         cursor.execute(query, (session["username"]))
     settings = cursor.fetchone()
 
-    return render_template("viewImage.html", image=data, settings=settings)
+    query = "SELECT username FROM Tag WHERE photoID=%s AND acceptedTag=1"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID))
+    tags = cursor.fetchall()
+
+    return render_template("viewImage.html", image=data, settings=settings, tags=tags)
 
 @app.route("/image/<image_name>", methods=["GET"])
 def image(image_name):
@@ -177,7 +182,7 @@ def upload_image():
         image_name = image_file.filename
         userName = session["username"]
         allFollower = "0"
-        
+
         filepath = os.path.join(IMAGES_DIR, image_name)
         image_file.save(filepath)
         caption = request.form.get('caption')
@@ -188,8 +193,8 @@ def upload_image():
         with connection.cursor() as cursor:
             cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower))
         message = "Image has been successfully uploaded."
-    
-        
+
+
         return render_template("upload.html", message=message)
     else:
         message = "Failed to upload image."
