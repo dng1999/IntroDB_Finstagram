@@ -20,3 +20,6 @@ Extra Features:
 - Search by poster. (G)
 - More secure registration (need email to register).
 - Forgot password?
+- Edit photo caption/tags
+- Mute other accounts
+- Delete your own account
