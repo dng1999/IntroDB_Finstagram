@@ -1,27 +1,33 @@
-Dorothy:
+# Dorothy:
+
 MAINS
 - View visible photos and info about them
 - Tag photos (aka edit tags)
+
 EXTRAS
 - Edit photo caption
 - Delete photos
 
 
-Selina:
+# Selina:
+
 MAINS
 - Post a photo
 - CloseFriendsGroup
+
 EXTRAS
 - Add comment. (G)
 - Forgot password/More secure registration
 
-Rachel:
+# Rachel:
+
 MAINS
 - Manage Follows
 - Manage tag requests
+
 EXTRAS
 
-Extra Features:
+# Extra Features:
 - Like photo/see liked photos. (G)
 - Follow request if account is private, otherwise no need to get approval for public account.
 - Unfollow user. (G)
