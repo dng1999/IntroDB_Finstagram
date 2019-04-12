@@ -26,6 +26,8 @@ MAINS
 - Manage tag requests
 
 EXTRAS
+-Unfollow
+-Mute accounts
 
 # Extra Features:
 - Like photo/see liked photos. (G)
