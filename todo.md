@@ -26,7 +26,7 @@ MAINS
 - Manage tag requests
 
 EXTRAS
-- Mute followers
+- Search by tag
 - Unfollow user
 
 # Extra Features:
