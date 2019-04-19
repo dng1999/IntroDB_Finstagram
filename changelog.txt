@@ -1,3 +1,8 @@
+Dorothy[4/19/2019]
+  - edit photo (tag and caption)
+    > added new functions/routes: editImage(photoID), saveCaption(photoID), removeTag/addTag(photoID, username), deleteImage(photoID)
+    > added new template file: editImage.html
+
 Dorothy[4/3/2019]
   - fixed view images in app.py
     > now in descending order
