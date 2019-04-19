@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Apr 03, 2019 at 05:26 PM
+-- Generation Time: Apr 19, 2019 at 11:44 PM
 -- Server version: 5.7.23
 -- PHP Version: 7.2.10
 
@@ -26,14 +26,6 @@ CREATE TABLE `Belong` (
   `username` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `Belong`
---
-
-INSERT INTO `Belong` (`groupName`, `groupOwner`, `username`) VALUES
-('mood', 'rainymood', 'a'),
-('mood', 'rainymood', 'rainymood');
-
 -- --------------------------------------------------------
 
 --
@@ -44,13 +36,6 @@ CREATE TABLE `CloseFriendGroup` (
   `groupName` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `groupOwner` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `CloseFriendGroup`
---
-
-INSERT INTO `CloseFriendGroup` (`groupName`, `groupOwner`) VALUES
-('mood', 'rainymood');
 
 -- --------------------------------------------------------
 
@@ -76,14 +61,6 @@ CREATE TABLE `Follow` (
   `followeeUsername` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `acceptedfollow` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `Follow`
---
-
-INSERT INTO `Follow` (`followerUsername`, `followeeUsername`, `acceptedfollow`) VALUES
-('a', 'rainymood', 1),
-('rainymood', 'a', 1);
 
 -- --------------------------------------------------------
 
@@ -115,14 +92,6 @@ CREATE TABLE `Person` (
   `displayTagged` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `Person`
---
-
-INSERT INTO `Person` (`username`, `password`, `fname`, `lname`, `avatar`, `bio`, `isPrivate`, `displayTimestamp`, `displayTagged`) VALUES
-('a', 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb', 'a', 'a', NULL, NULL, NULL, 0, 0),
-('rainymood', 'b7e57fa71a8e6dfba720495031f1fb442fd7bf60bb620e93e91fadab8d5e2ef2', 'Tomoyo', 'Naka', NULL, NULL, NULL, 1, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -132,21 +101,13 @@ INSERT INTO `Person` (`username`, `password`, `fname`, `lname`, `avatar`, `bio`,
 CREATE TABLE `Photo` (
   `photoID` int(11) NOT NULL,
   `photoOwner` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `filePath` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `caption` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `allFollowers` tinyint(1) DEFAULT NULL,
   `groupName` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `groupOwner` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `Photo`
---
-
-INSERT INTO `Photo` (`photoID`, `photoOwner`, `timestamp`, `filePath`, `caption`, `allFollowers`, `groupName`, `groupOwner`) VALUES
-(1, 'a', '2019-04-03 16:28:14', 'rabbit.png', NULL, 1, 'mood', 'rainymood'),
-(2, 'a', '2019-04-03 16:48:59', 'fullsizeoutput_4.jpeg', NULL, 1, 'mood', 'rainymood');
 
 -- --------------------------------------------------------
 
@@ -169,7 +130,7 @@ CREATE TABLE `Share` (
 CREATE TABLE `Tag` (
   `username` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `photoID` int(11) NOT NULL,
-  `acceptedTag` tinyint(1) DEFAULT NULL
+  `acceptedTag` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -181,35 +142,35 @@ CREATE TABLE `Tag` (
 --
 ALTER TABLE `Belong`
   ADD PRIMARY KEY (`groupName`,`groupOwner`,`username`),
-  ADD KEY `username` (`username`);
+  ADD KEY `belong_ibfk_2` (`username`);
 
 --
 -- Indexes for table `CloseFriendGroup`
 --
 ALTER TABLE `CloseFriendGroup`
   ADD PRIMARY KEY (`groupName`,`groupOwner`),
-  ADD KEY `groupOwner` (`groupOwner`);
+  ADD KEY `closefriendgroup_ibfk_1` (`groupOwner`);
 
 --
 -- Indexes for table `Comment`
 --
 ALTER TABLE `Comment`
   ADD PRIMARY KEY (`photoID`,`username`),
-  ADD KEY `username` (`username`);
+  ADD KEY `comment_ibfk_2` (`username`);
 
 --
 -- Indexes for table `Follow`
 --
 ALTER TABLE `Follow`
   ADD PRIMARY KEY (`followerUsername`,`followeeUsername`),
-  ADD KEY `followeeUsername` (`followeeUsername`);
+  ADD KEY `follow_ibfk_2` (`followeeUsername`);
 
 --
 -- Indexes for table `Liked`
 --
 ALTER TABLE `Liked`
   ADD PRIMARY KEY (`username`,`photoID`),
-  ADD KEY `photoID` (`photoID`);
+  ADD KEY `liked_ibfk_2` (`photoID`);
 
 --
 -- Indexes for table `Person`
@@ -222,21 +183,22 @@ ALTER TABLE `Person`
 --
 ALTER TABLE `Photo`
   ADD PRIMARY KEY (`photoID`),
-  ADD KEY `photoOwner` (`photoOwner`),
-  ADD KEY `cf_group` (`groupName`,`groupOwner`);
+  ADD KEY `cf_group` (`groupName`,`groupOwner`),
+  ADD KEY `photo_ibfk_1` (`photoOwner`);
+
 --
 -- Indexes for table `Share`
 --
 ALTER TABLE `Share`
   ADD PRIMARY KEY (`groupName`,`groupOwner`,`photoID`),
-  ADD KEY `photoID` (`photoID`);
+  ADD KEY `share_ibfk_2` (`photoID`);
 
 --
 -- Indexes for table `Tag`
 --
 ALTER TABLE `Tag`
   ADD PRIMARY KEY (`username`,`photoID`),
-  ADD KEY `photoID` (`photoID`);
+  ADD KEY `tag_ibfk_2` (`photoID`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -246,7 +208,7 @@ ALTER TABLE `Tag`
 -- AUTO_INCREMENT for table `Photo`
 --
 ALTER TABLE `Photo`
-  MODIFY `photoID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `photoID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
@@ -256,53 +218,53 @@ ALTER TABLE `Photo`
 -- Constraints for table `Belong`
 --
 ALTER TABLE `Belong`
-  ADD CONSTRAINT `belong_ibfk_1` FOREIGN KEY (`groupName`,`groupOwner`) REFERENCES `CloseFriendGroup` (`groupName`, `groupOwner`),
-  ADD CONSTRAINT `belong_ibfk_2` FOREIGN KEY (`username`) REFERENCES `Person` (`username`);
+  ADD CONSTRAINT `belong_ibfk_1` FOREIGN KEY (`groupName`,`groupOwner`) REFERENCES `CloseFriendGroup` (`groupName`, `groupOwner`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `belong_ibfk_2` FOREIGN KEY (`username`) REFERENCES `Person` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `CloseFriendGroup`
 --
 ALTER TABLE `CloseFriendGroup`
-  ADD CONSTRAINT `closefriendgroup_ibfk_1` FOREIGN KEY (`groupOwner`) REFERENCES `Person` (`username`);
+  ADD CONSTRAINT `closefriendgroup_ibfk_1` FOREIGN KEY (`groupOwner`) REFERENCES `Person` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Comment`
 --
 ALTER TABLE `Comment`
-  ADD CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`photoID`) REFERENCES `Photo` (`photoID`),
-  ADD CONSTRAINT `comment_ibfk_2` FOREIGN KEY (`username`) REFERENCES `Person` (`username`);
+  ADD CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`photoID`) REFERENCES `Photo` (`photoID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `comment_ibfk_2` FOREIGN KEY (`username`) REFERENCES `Person` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Follow`
 --
 ALTER TABLE `Follow`
-  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`followerUsername`) REFERENCES `Person` (`username`),
-  ADD CONSTRAINT `follow_ibfk_2` FOREIGN KEY (`followeeUsername`) REFERENCES `Person` (`username`);
+  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`followerUsername`) REFERENCES `Person` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `follow_ibfk_2` FOREIGN KEY (`followeeUsername`) REFERENCES `Person` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Liked`
 --
 ALTER TABLE `Liked`
-  ADD CONSTRAINT `liked_ibfk_1` FOREIGN KEY (`username`) REFERENCES `Person` (`username`),
-  ADD CONSTRAINT `liked_ibfk_2` FOREIGN KEY (`photoID`) REFERENCES `Photo` (`photoID`);
+  ADD CONSTRAINT `liked_ibfk_1` FOREIGN KEY (`username`) REFERENCES `Person` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `liked_ibfk_2` FOREIGN KEY (`photoID`) REFERENCES `Photo` (`photoID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Photo`
 --
 ALTER TABLE `Photo`
-  ADD CONSTRAINT `cf_group` FOREIGN KEY (`groupName`,`groupOwner`) REFERENCES `CloseFriendGroup` (`groupName`, `groupOwner`),
-  ADD CONSTRAINT `photo_ibfk_1` FOREIGN KEY (`photoOwner`) REFERENCES `Person` (`username`);
+  ADD CONSTRAINT `cf_group` FOREIGN KEY (`groupName`,`groupOwner`) REFERENCES `CloseFriendGroup` (`groupName`, `groupOwner`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `photo_ibfk_1` FOREIGN KEY (`photoOwner`) REFERENCES `Person` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Share`
 --
 ALTER TABLE `Share`
-  ADD CONSTRAINT `share_ibfk_1` FOREIGN KEY (`groupName`,`groupOwner`) REFERENCES `CloseFriendGroup` (`groupName`, `groupOwner`),
-  ADD CONSTRAINT `share_ibfk_2` FOREIGN KEY (`photoID`) REFERENCES `Photo` (`photoID`);
+  ADD CONSTRAINT `share_ibfk_1` FOREIGN KEY (`groupName`,`groupOwner`) REFERENCES `CloseFriendGroup` (`groupName`, `groupOwner`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `share_ibfk_2` FOREIGN KEY (`photoID`) REFERENCES `Photo` (`photoID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Tag`
 --
 ALTER TABLE `Tag`
-  ADD CONSTRAINT `tag_ibfk_1` FOREIGN KEY (`username`) REFERENCES `Person` (`username`),
-  ADD CONSTRAINT `tag_ibfk_2` FOREIGN KEY (`photoID`) REFERENCES `Photo` (`photoID`);
+  ADD CONSTRAINT `tag_ibfk_1` FOREIGN KEY (`username`) REFERENCES `Person` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `tag_ibfk_2` FOREIGN KEY (`photoID`) REFERENCES `Photo` (`photoID`) ON DELETE CASCADE ON UPDATE CASCADE;
