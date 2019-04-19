@@ -64,8 +64,8 @@ def images():
         cursor.execute(query)
 
     return render_template("images.html", images=data)
-    
-    
+
+
 
 @app.route("/images/<photoID>", methods=["GET"])
 def viewImageInfo(photoID):
@@ -84,7 +84,7 @@ def viewImageInfo(photoID):
         cursor.execute(query, (photoID))
     tags = cursor.fetchall()
 
-    return render_template("viewImage.html", image=data, settings=settings, tags=tags)
+    return render_template("viewImage.html", image=data, settings=settings, tags=tags, session=session["username"])
 
 @app.route("/image/<image_name>", methods=["GET"])
 def image(image_name):
@@ -209,7 +209,7 @@ def upload_image():
             query = "INSERT INTO Photo (photoOwner, timestamp, filePath, caption, allFollowers, groupName, groupOwner) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             with connection.cursor() as cursor:
                 cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower,groupName, groupOwner))
-            
+
         message = "Image has been successfully uploaded."
 
 
@@ -266,7 +266,60 @@ def declinef(followeruser):
 	    cursor.execute(query, (followeruser, session["username"]))
 	return redirect(url_for('follow'))
 
+@app.route('/editImage/<photoID>',methods = ["GET"])
+def editImage(photoID):
+    query = "SELECT * FROM Photo WHERE photoID=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID))
+    data = cursor.fetchone()
 
+    query = "SELECT username FROM Tag WHERE photoID=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID))
+    tags = cursor.fetchall()
+
+    return render_template("editImage.html", image=data, tags=tags)
+
+@app.route('/saveCaption/<photoID>',methods = ["POST"])
+def saveCaption(photoID):
+    if request.form:
+        requestData = request.form
+        caption = requestData["caption"]
+
+        query = "UPDATE Photo SET caption=%s WHERE photoID=%s"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (caption, photoID))
+
+    return redirect(url_for('editImage', photoID=photoID))
+
+@app.route('/removeTag/<photoID>/<username>',methods = ["GET"])
+def removeTag(photoID, username):
+    query = "DELETE FROM Tag WHERE photoID=%s AND username=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID, username))
+
+    return redirect(url_for('editImage', photoID=photoID))
+
+@app.route('/addTag/<photoID>',methods = ["GET"])
+def addTag(photoID):
+    username = request.args.get("addTag")
+    if (username != ''):
+        try:
+            query = "INSERT INTO Tag (username, photoID) VALUES (%s, %s)"
+            with connection.cursor() as cursor:
+                cursor.execute(query, (username, photoID))
+        except pymysql.err.IntegrityError:
+            return redirect(url_for('editImage', photoID=photoID))
+
+    return redirect(url_for('editImage', photoID=photoID))
+
+@app.route('/deleteImage/<photoID>',methods = ["GET"])
+def deleteImage(photoID):
+    query = "DELETE FROM Photo WHERE photoID=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID))
+
+    return redirect(url_for('images'))
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):

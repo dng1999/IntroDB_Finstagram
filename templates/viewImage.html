@@ -13,6 +13,10 @@
                 <br>Posted by {{image.photoOwner}}{% if settings.displayTimestamp %} on {{image.timestamp}}{% endif %}
                 {% if settings.displayTagged %}<br><b>Tagged: </b>{% for tag in tags %}@{{tag.username}} {% endfor %}{% endif %}
                 <br><b>Caption: </b>{{image.caption}}
+                {% if session == image.photoOwner %}
+                <br><form action="/editImage/{{image.photoID}}"><input type="submit" value="Edit"></form>
+                <form action="/deleteImage/{{image.photoID}}"><input type="submit" value="Delete"></form>
+                {% endif %}
               </td>
             </tr>
           </table>
