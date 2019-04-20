@@ -53,7 +53,7 @@ def images():
     queriesWUserName = [];
     queriesWUserName.append( "CREATE VIEW self AS SELECT filePath, photoID, timestamp FROM Photo WHERE photoOwner=%s")
     queriesWUserName.append("CREATE VIEW groups AS SELECT filePath, photoID, timestamp FROM Photo JOIN Belong USING (groupName, groupOwner) WHERE Belong.username = %s")
-    queriesWUserName.append( "CREATE VIEW following AS SELECT filePath, photoID, timestamp FROM Follow JOIN Photo ON(photoOwner=followeeUsername) WHERE followerUsername = %s AND allFollowers = '1'")
+    queriesWUserName.append( "CREATE VIEW following AS SELECT filePath, photoID, timestamp FROM Follow JOIN Photo ON(photoOwner=followeeUsername) WHERE followerUsername = %s AND allFollowers = '1' AND acceptedFollow = 1")
     query= "SELECT DISTINCT filePath, photoID, timestamp FROM (SELECT filePath, photoID, timestamp FROM self UNION ALL SELECT filePath, photoID, timestamp FROM groups UNION ALL SELECT filePath, photoID,timestamp FROM following)AS T ORDER BY timestamp DESC"
     with connection.cursor() as cursor:
         for i in range (len(queriesWUserName)):
@@ -273,7 +273,7 @@ def editImage(photoID):
         cursor.execute(query, (photoID))
     data = cursor.fetchone()
 
-    query = "SELECT username FROM Tag WHERE photoID=%s"
+    query = "SELECT username FROM Tag WHERE photoID=%s and acceptedTag = 1"
     with connection.cursor() as cursor:
         cursor.execute(query, (photoID))
     tags = cursor.fetchall()
@@ -305,9 +305,9 @@ def addTag(photoID):
     username = request.args.get("addTag")
     if (username != ''):
         try:
-            query = "INSERT INTO Tag (username, photoID) VALUES (%s, %s)"
+            query = "INSERT INTO Tag (username, photoID,acceptedTag) VALUES (%s, %s,%s)"
             with connection.cursor() as cursor:
-                cursor.execute(query, (username, photoID))
+                cursor.execute(query, (username, photoID,None))
         except pymysql.err.IntegrityError:
             return redirect(url_for('editImage', photoID=photoID))
 
@@ -320,6 +320,76 @@ def deleteImage(photoID):
         cursor.execute(query, (photoID))
 
     return redirect(url_for('images'))
+
+@app.route("/tag", methods=["GET"])
+@login_required
+def tag():
+    query1 = "SELECT * FROM Photo JOIN Tag using (photoID) WHERE Tag.username = %s and acceptedTag = 1"
+    with connection.cursor() as cursor:
+        cursor.execute(query1, (session["username"]))
+    data = cursor.fetchall()
+    query2 = "SELECT * FROM Photo JOIN Tag using (photoID) WHERE Tag.username=%s and acceptedtag is NULL"
+    with connection.cursor() as cursor2:
+        cursor2.execute(query2, (session["username"]))
+    waiting = cursor2.fetchall()
+    print(waiting)
+    return render_template("tag.html", images = data, waitlist = waiting)
+
+@app.route('/accepttag/<photoID>',methods = ["POST"])
+@login_required
+def acceptt(photoID):
+    with connection.cursor() as cursor:
+        query = 'UPDATE Tag SET acceptedtag = 1 WHERE photoID = %s and username = %s'
+        cursor.execute(query, (photoID, session["username"]))
+    return redirect(url_for('tag'))
+
+@app.route('/declinetag/<photoID>',methods = ["POST"])
+@login_required
+def declinet(photoID):
+    with connection.cursor() as cursor:
+        query = 'UPDATE Tag SET acceptedtag = 0 WHERE photoID = %s AND username= %s'
+        cursor.execute(query, (photoID, session["username"]))
+    return redirect(url_for('tag'))
+@app.route('/unfollow/<followeeuser>',methods = ["POST"])
+@login_required
+def unfollow(followeeuser):
+    with connection.cursor() as cursor:
+        query = 'UPDATE Follow SET acceptedfollow = 0 WHERE followeeUsername = %s AND followerUsername = %s'
+        cursor.execute(query, (followeeuser, session["username"]))
+    with connection.cursor() as cursor:
+        query = 'CREATE VIEW pair AS SELECT * FROM Tag NATURAL JOIN Photo where photoOwner = %s and username = %s'
+        cursor.execute(query, (followeeuser, session["username"]))
+    with connection.cursor() as cursor:
+        query = 'SELECT photoID from pair'
+        cursor.execute(query)
+    data = cursor.fetchall()
+    with connection.cursor() as cursor:
+        query = 'DROP VIEW pair'
+        cursor.execute(query)
+    with connection.cursor() as cursor:
+        for item in data:
+            query = 'UPDATE Tag SET acceptedTag = 0 WHERE photoID = %s and username = %s'
+            cursor.execute(query,(item['photoID'],session["username"]))
+
+    return redirect(url_for('follow'))
+
+@app.route('/searchtag',methods = ["POST"])
+@login_required
+def searchtag():
+    if request.form:
+        requestData = request.form
+        username = requestData["username"]
+        try:
+            with connection.cursor() as cursor:
+                query = "SELECT * FROM Photo JOIN Tag using (photoID) WHERE Tag.username = %s and acceptedTag = 1"
+                cursor.execute(query, username)
+            data = cursor.fetchall()
+            user = data[0]
+            print(user)
+        except pymysql.Error:
+            return redirect(url_for("follow"))
+        return render_template("searchtag.html",images = data,user=user)
+
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):

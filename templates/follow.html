@@ -13,6 +13,9 @@
           <table>
               {% for followee in followees %}
                   <p> {{followee.followeeUsername}}<p>
+                <form action = "/unfollow/{{followee.followeeUsername}}" method = "POST">
+                  <input type="submit" value="Unfollow">
+                </form>
               {% endfor %}  
             </table>
           <div>
