@@ -6,10 +6,10 @@
         <h1>Posts you are tagged</h1>
             <div>
                 {% for image in images %}
-                <img src="/image/{{image.filePath}}" width="300"/>
+                <img src="/image/{{image.filePath}}" width="300"/><br>
                 <b>ID:</b> {{image.photoID}}
                 <br>Posted by {{image.photoOwner}}
-                <br><b>Caption: </b>{{image.caption}}
+                <br><b>Caption: </b>{{image.caption}}<br>
                 {% endfor %}
         <h1>Your tag request</h1>
               {% for wait in waitlist %}
