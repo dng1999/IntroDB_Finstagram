@@ -3,9 +3,9 @@
         <title>Finstagram</title>
     </head>
     <body>
-        <h1>Posts tagged by {{user.username}}</h1>
+        <h1>Posts tagged by {{user}}</h1>
         {% for image in images %}
-            <img src="/image/{{image.filePath}}" width="300"/>
+            <br><img src="/image/{{image.filePath}}" width="300"/><br>
             <b>ID:</b> {{image.photoID}}
             <br>Posted by {{image.photoOwner}}
             <br><b>Caption: </b>{{image.caption}}

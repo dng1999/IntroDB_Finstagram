@@ -414,7 +414,7 @@ def searchtag():
                         #print(data2)
     except pymysql.Error:
         return redirect(url_for("tag"))
-
+    print(username)
     return render_template("searchtag.html",images = data2,user = username)
 
 
