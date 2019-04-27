@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <title>Finstagram</title>
+    </head>
+    <body>
+        <h1>Image Gallery</h1>
+        <div>
+          <table>
+            <tr>
+              <td><img src="/image/{{image.filePath}}" width="300"/></td>
+              <td>
+                <b>ID:</b> {{image.photoID}}
+                <br>Posted by {{image.photoOwner}} on {{image.timestamp}}
+                <br>
+                {% for comment in comments %}
+
+                  {{comment.username}} 
+                  {{":"}}
+                  {{comment.commentText}}
+                  <form action="/deleteComment/{{image.photoID}}/{{comment.commentID}}" method="get">
+                  <input type="submit" value="delete">
+                  </form>
+                  <br>
+
+
+
+                {% endfor %}
+                <br>
+                <form action="/addComment/{{image.photoID}}"  method="post">
+                  <input type="text" name="comment" placeholder="Comment your feeling!" >
+                  <input type="submit" value="add">
+                </form>
+                
+              </td>
+            </tr>
+          </table>
+        </div>
+        <a href="/images">Go back</a>
+    </body>
+</html>
+

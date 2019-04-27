@@ -44,6 +44,7 @@ CREATE TABLE `CloseFriendGroup` (
 --
 
 CREATE TABLE `Comment` (
+  `commentID`int(11) NOT NULL,
   `username` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `photoID` int(11) NOT NULL,
   `commentText` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -155,7 +156,8 @@ ALTER TABLE `CloseFriendGroup`
 -- Indexes for table `Comment`
 --
 ALTER TABLE `Comment`
-  ADD PRIMARY KEY (`photoID`,`username`),
+  ADD PRIMARY KEY (`commentID`),
+  ADD KEY `comment_ibfk_1` (`photoID`),
   ADD KEY `comment_ibfk_2` (`username`);
 
 --
@@ -209,6 +211,13 @@ ALTER TABLE `Tag`
 --
 ALTER TABLE `Photo`
   MODIFY `photoID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+
+-- AUTO_INCREMENT for table `Comment`
+--
+ALTER TABLE `Comment`
+  MODIFY `commentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
 
 --
 -- Constraints for dumped tables

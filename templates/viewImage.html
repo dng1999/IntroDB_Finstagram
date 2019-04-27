@@ -13,10 +13,17 @@
                 <br>Posted by {{image.photoOwner}}{% if settings.displayTimestamp %} on {{image.timestamp}}{% endif %}
                 {% if settings.displayTagged %}<br><b>Tagged: </b>{% for tag in tags %}@{{tag.username}} {% endfor %}{% endif %}
                 <br><b>Caption: </b>{{image.caption}}
+                <br><b>Comments:</b>
+                <br>
+                {% for comment in comments %} {{comment.username}} {{":"}} {{comment.commentText}} <br>{% endfor %}
                 {% if session == image.photoOwner %}
                 <br><form action="/editImage/{{image.photoID}}"><input type="submit" value="Edit"></form>
                 <form action="/deleteImage/{{image.photoID}}"><input type="submit" value="Delete"></form>
                 {% endif %}
+                {% if session != image.photoOwner %}
+                <br><form action="/editComment/{{image.photoID}}"><input type="submit" value="Manage my comments"></form>
+                {% endif %}
+
               </td>
             </tr>
           </table>

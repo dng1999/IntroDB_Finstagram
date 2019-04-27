@@ -68,6 +68,7 @@ def images():
 
 
 @app.route("/images/<photoID>", methods=["GET"])
+@login_required
 def viewImageInfo(photoID):
     query = "SELECT * FROM Photo WHERE photoID=%s"
     with connection.cursor() as cursor:
@@ -83,10 +84,16 @@ def viewImageInfo(photoID):
     with connection.cursor() as cursor:
         cursor.execute(query, (photoID))
     tags = cursor.fetchall()
+    
+    query = "SELECT * FROM Comment WHERE photoID=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID))
+    comments = cursor.fetchall()
 
-    return render_template("viewImage.html", image=data, settings=settings, tags=tags, session=session["username"])
+    return render_template("viewImage.html", image=data, settings=settings, tags=tags, comments=comments, session=session["username"])
 
 @app.route("/image/<image_name>", methods=["GET"])
+@login_required
 def image(image_name):
     image_location = os.path.join(IMAGES_DIR, image_name)
     if os.path.isfile(image_location):
@@ -162,6 +169,7 @@ def registerAuth():
         return redirect(url_for("login"))
 
 @app.route("/searchuser", methods=["POST"])
+@login_required
 def searchuser():
     if request.form:
         requestData = request.form
@@ -179,6 +187,7 @@ def searchuser():
 
 
 @app.route("/logout", methods=["GET"])
+@login_required
 def logout():
     session.pop("username")
     return redirect("/")
@@ -228,7 +237,9 @@ def settings():
     return render_template("settings.html", settings=data)
 
 @app.route("/changeSettings", methods=["POST"])
+@login_required
 def changeSettings():
+    
     requestData = request.form
     if (requestData.get("displayTagged")): displayTagged = 1
     else: displayTagged = 0
@@ -253,20 +264,74 @@ def changeSettings():
         return render_template("settings.html", settings=data, error=error)
 
 @app.route('/acceptfollow/<followeruser>',methods = ["POST"])
+@login_required
 def acceptf(followeruser):
 	with connection.cursor() as cursor:
 	    query = 'UPDATE Follow SET acceptedfollow = 1 WHERE followerUsername = %s AND followeeUsername = %s'
 	    cursor.execute(query, (followeruser, session["username"]))
 	return redirect(url_for('follow'))
 
+
+
 @app.route('/declinefollow/<followeruser>',methods = ["POST"])
+@login_required
 def declinef(followeruser):
 	with connection.cursor() as cursor:
 	    query = 'UPDATE Follow SET acceptedfollow = 0 WHERE followerUsername = %s AND followeeUsername = %s'
 	    cursor.execute(query, (followeruser, session["username"]))
 	return redirect(url_for('follow'))
 
+
+
+
+
+
+@app.route('/editComment/<photoID>',methods = ["GET"])
+@login_required
+def editComment(photoID):
+    query = "SELECT * FROM Photo WHERE photoID=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID))
+    data = cursor.fetchone()
+    
+    query = "SELECT commentText, commentID, username FROM Comment WHERE photoID=%s AND username = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (photoID, session["username"]))
+        comments = cursor.fetchall()
+    return render_template("editComment.html", image=data, comments = comments)
+
+
+@app.route('/addComment/<photoID>',methods = ["POST"])
+@login_required
+def addComment(photoID):
+    if request.form:
+        requestData = request.form
+        comment = requestData["comment"]
+        query = "INSERT INTO Comment (username, photoID, commentText, timestamp) VALUES (%s, %s, %s, %s)"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (session["username"], photoID, comment, time.strftime('%Y-%m-%d %H:%M:%S')))
+
+    return redirect(url_for('editComment', photoID=photoID))
+
+
+@app.route('/deleteComment/<photoID>/<commentID>',methods = ["GET"])
+@login_required
+def deleteComment(photoID, commentID):
+
+    query = "DELETE FROM Comment WHERE commentID=%s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (commentID))
+
+    return redirect(url_for('editComment', photoID=photoID))
+
+
+
+
+
+
+    
 @app.route('/editImage/<photoID>',methods = ["GET"])
+@login_required
 def editImage(photoID):
     query = "SELECT * FROM Photo WHERE photoID=%s"
     with connection.cursor() as cursor:
@@ -280,7 +345,10 @@ def editImage(photoID):
 
     return render_template("editImage.html", image=data, tags=tags)
 
+
+
 @app.route('/saveCaption/<photoID>',methods = ["POST"])
+@login_required
 def saveCaption(photoID):
     if request.form:
         requestData = request.form
@@ -292,7 +360,9 @@ def saveCaption(photoID):
 
     return redirect(url_for('editImage', photoID=photoID))
 
+
 @app.route('/removeTag/<photoID>/<username>',methods = ["GET"])
+@login_required
 def removeTag(photoID, username):
     query = "DELETE FROM Tag WHERE photoID=%s AND username=%s AND acceptedTag is NULL"
     with connection.cursor() as cursor:
@@ -300,7 +370,9 @@ def removeTag(photoID, username):
 
     return redirect(url_for('editImage', photoID=photoID))
 
+
 @app.route('/addTag/<photoID>',methods = ["GET"])
+@login_required
 def addTag(photoID):
     username = request.args.get("addTag")
     if (username != ''):
@@ -314,6 +386,7 @@ def addTag(photoID):
     return redirect(url_for('editImage', photoID=photoID))
 
 @app.route('/deleteImage/<photoID>',methods = ["GET"])
+@login_required
 def deleteImage(photoID):
     query = "DELETE FROM Photo WHERE photoID=%s"
     with connection.cursor() as cursor:
