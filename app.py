@@ -332,7 +332,6 @@ def tag():
     with connection.cursor() as cursor2:
         cursor2.execute(query2, (session["username"]))
     waiting = cursor2.fetchall()
-    query = "SELECT username FROM Tag WHERE photoID=%s AND acceptedTag=1"
     return render_template("tag.html", images = data, waitlist = waiting)
 
 @app.route('/accepttag/<photoID>',methods = ["POST"])
