@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title> Manage Group Members </title> 
+    </head>
+    <body>
+        {{"Group Name : " + groupName}}
+        <br>
+        {% for mem in mems %}
+        <form action="/removeMember/{{groupName}}/{{mem.username}}" method="get">
+            {{mem.username}}
+            &emsp;
+            <input type="submit" value = "Remove member">
+
+        </form>
+        <br>
+
+
+        {% endfor %}
+        
+        <a href="/group">Go back</a>
+    </body>
+</html>

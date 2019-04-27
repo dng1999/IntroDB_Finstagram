@@ -41,7 +41,7 @@ def home():
 @app.route("/upload", methods=["GET"])
 @login_required
 def upload():
-    query = "SELECT groupName, groupOwner FROM Belong WHERE username=%s"
+    query = "SELECT groupName FROM CloseFriendGroup WHERE groupOwner=%s"
     with connection.cursor() as cursor:
         cursor.execute(query, (session["username"]))
     data = cursor.fetchall()
@@ -118,7 +118,81 @@ def follow():
     return render_template("follow.html", followers=follower,followees =followee,waits = waitlist)
 
 
+@app.route("/group", methods=["GET"])
+@login_required
+def group():
+    query = "SELECT * FROM CloseFriendGroup WHERE groupOwner = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"]))
+    myGroups = cursor.fetchall()
+    return render_template("group.html", myGroups = myGroups)
 
+@app.route("/deleteGroup/<groupName>", methods=["GET"])
+@login_required
+def deleteGroup(groupName):
+    query = "Delete FROM CloseFriendGroup WHERE groupOwner = %s AND groupName = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"], groupName))
+    return redirect(url_for('group'))
+
+@app.route("/addToGroup/<groupName>", methods=["POST"])
+@login_required
+def addToGroup(groupName): 
+    if request.form:
+        requestData = request.form
+        user = requestData["add"]
+        with connection.cursor() as cursor:
+            query = "SELECT * FROM Follow WHERE followerUserName = %s AND followeeUserName = %s AND acceptedFollow = 1"
+            cursor.execute(query, (user, session["username"]))
+        result = cursor.fetchone()
+        if result is None:
+            message = "Cannot find this user from your follower, addingfail!"
+            return render_template("group.html", message=message)
+        try:
+            with connection.cursor() as cursor:
+                query = "INSERT INTO Belong (username, groupName, groupOwner) VALUES (%s, %s, %s)"
+                cursor.execute(query, (user, groupName, session["username"]))
+        except pymysql.err.IntegrityError:
+            message = "You already have %s in this group!" % (user)
+            return render_template("group.html", message=message)
+
+        message = "Successed in adding this person in this group!"
+        return render_template("group.html", message=message)
+
+@app.route("/createGroup", methods=["POST"])
+@login_required
+def createGroup():
+    if request.form:
+        requestData = request.form
+        groupName = requestData["groupName"]
+        try:
+            with connection.cursor() as cursor:
+                query = "INSERT INTO CloseFriendGroup (groupName, groupOwner) VALUES (%s, %s)"
+                cursor.execute(query, (groupName, session["username"]))
+        except pymysql.err.IntegrityError:
+            message = "You already have a group named %s!" % (groupName)
+            return render_template("group.html", message=message)
+
+        return redirect(url_for("group"))
+
+@app.route("/manageGroup/<groupName>", methods=["GET"])
+@login_required  
+def manageGroup(groupName):
+    query = "SELECT username FROM Belong WHERE groupName = %s AND groupOwner = %s "
+    with connection.cursor() as cursor:
+        cursor.execute(query, (groupName, session["username"]))
+    mems = cursor.fetchall()
+    return render_template("manageGroup.html", mems = mems, groupName = groupName)
+
+@app.route("/removeMember/<groupName>/<mem>", methods=["GET"])
+@login_required  
+def removeMember(groupName,mem):
+    query = "Delete FROM Belong WHERE groupOwner = %s AND groupName = %s AND username = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"], groupName, mem))
+    return redirect(url_for('manageGroup',groupName = groupName))
+    
+            
 @app.route("/login", methods=["GET"])
 def login():
     return render_template("login.html")
@@ -212,12 +286,11 @@ def upload_image():
             with connection.cursor() as cursor:
                 cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower))
         else:
-            result = display.split(",")
-            groupName = result[0].split(":")[1]
-            groupOwner = result[1].split(":")[1]
+            result = display.split(":")
+            groupName = result[1]
             query = "INSERT INTO Photo (photoOwner, timestamp, filePath, caption, allFollowers, groupName, groupOwner) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             with connection.cursor() as cursor:
-                cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower,groupName, groupOwner))
+                cursor.execute(query, (userName, time.strftime('%Y-%m-%d %H:%M:%S'), image_name, caption, allFollower,groupName, session["username"]))
 
         message = "Image has been successfully uploaded."
 
@@ -323,11 +396,6 @@ def deleteComment(photoID, commentID):
         cursor.execute(query, (commentID))
 
     return redirect(url_for('editComment', photoID=photoID))
-
-
-
-
-
 
     
 @app.route('/editImage/<photoID>',methods = ["GET"])

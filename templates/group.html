@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <title> Close Friend Groups</title>
+    </head>
+    <body>
+        <h1>Current Groups</h1>
+            <div name = "currentGroups">
+              {% for myGroup in myGroups %}
+                {{"Group Name : " + myGroup.groupName}}
+
+             
+                <form action="/manageGroup/{{myGroup.groupName}}" method="get">
+                    <input type="submit" value = "Manage group members">
+
+
+                </form>
+
+                <form action="/addToGroup/{{myGroup.groupName}}" method="post">
+                    <input type="text" name = "add" placeholder="Add a follower to your close friend group by their user id" style="width: 300px">
+                    &emsp;
+                    <input type="submit" value = "add">
+
+
+                </form>
+
+
+                <form action="/deleteGroup/{{myGroup.groupName}}" method="get">
+                    <input type="submit" value="Delete this group">
+                </form>
+               {% endfor %}
+               <br>
+
+                <br>
+            </div>
+
+        <br>
+        
+
+        {% if message %}
+            {{ message }}
+        {% endif %}
+        <br>
+
+        <h1> Create a Close Friend Group</h1>
+        <form action="/createGroup" method="post">
+            <input type= "text" name ="groupName" placeholder="Enter your Group Name">
+            &emsp;
+            <input type="submit" value="Create">
+
+       
+        </form>
+
+
+        <br>
+        <a href="/">Go back</a>
+    </body>
+</html>
