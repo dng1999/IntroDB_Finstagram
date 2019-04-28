@@ -7,7 +7,8 @@
         <div>
             {% for image in images %}
 
-            <a href="/images/{{image.photoID}}"><img src="/image/{{image.filePath}}" width="300"/></a>
+            <a href="/viewImageInfo/{{image.photoID}}"><img src="/image/{{image.filePath}}" width="300"/></a>
+
             {% endfor %}
         </div>
 

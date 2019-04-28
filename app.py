@@ -62,12 +62,13 @@ def images():
         data = cursor.fetchall()
         query = "DROP VIEW self, groups, following"
         cursor.execute(query)
+    
 
     return render_template("images.html", images=data)
 
 
 
-@app.route("/images/<photoID>", methods=["GET"])
+@app.route("/viewImageInfo/<photoID>", methods=["GET"])
 @login_required
 def viewImageInfo(photoID):
     query = "SELECT * FROM Photo WHERE photoID=%s"
@@ -85,12 +86,46 @@ def viewImageInfo(photoID):
         cursor.execute(query, (photoID))
     tags = cursor.fetchall()
     
-    query = "SELECT * FROM Comment WHERE photoID=%s"
+    query = "SELECT * FROM Comment WHERE photoID=%s ORDER BY timestamp DESC"
     with connection.cursor() as cursor:
         cursor.execute(query, (photoID))
     comments = cursor.fetchall()
+       
+    query = "Select * FROM Liked WHERE username = %s and photoID = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"],photoID))
+    liked = cursor.fetchone()
+    if liked is None:
+        like = "Like"
+    else:
+        like = "Liked"
+        
+    query = "Select username FROM Liked WHERE photoID = %s ORDER BY timestamp DESC"
+    with connection.cursor() as cursor:
+        cursor.execute(query, photoID)
+    likedPeople = cursor.fetchall()
 
-    return render_template("viewImage.html", image=data, settings=settings, tags=tags, comments=comments, session=session["username"])
+    return render_template("viewImage.html", image=data, settings=settings, tags=tags, comments=comments, like = like, likedPeople = likedPeople, session=session["username"])
+
+@app.route("/likeUnlike/<photoID>", methods=["GET"])
+@login_required
+def likeUnlike(photoID):
+    query = "Select * FROM Liked WHERE username = %s and photoID = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (session["username"],photoID))
+    liked = cursor.fetchone()
+    if liked is None:
+        query = "INSERT INTO Liked (photoID,username, timestamp) VALUES (%s, %s, %s)"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (photoID, session["username"], time.strftime('%Y-%m-%d %H:%M:%S')))
+    else:
+        query = "Delete FROM Liked WHERE photoID = %s AND username = %s"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (photoID, session["username"]))
+      
+    return redirect(url_for('viewImageInfo', photoID = photoID))
+    
+
 
 @app.route("/image/<image_name>", methods=["GET"])
 @login_required
@@ -98,6 +133,8 @@ def image(image_name):
     image_location = os.path.join(IMAGES_DIR, image_name)
     if os.path.isfile(image_location):
         return send_file(image_location, mimetype="image/jpg")
+    
+    
 
 @app.route("/follow", methods=["GET"])
 @login_required

@@ -13,6 +13,20 @@
                 <br>Posted by {{image.photoOwner}}{% if settings.displayTimestamp %} on {{image.timestamp}}{% endif %}
                 {% if settings.displayTagged %}<br><b>Tagged: </b>{% for tag in tags %}@{{tag.username}} {% endfor %}{% endif %}
                 <br><b>Caption: </b>{{image.caption}}
+                <br>
+                <b>Liked: </b>
+                    {% for likedPerson in likedPeople %}
+                        {{likedPerson.username}}
+                        {{" "}}
+                    {%  endfor %}
+                <form action="/likeUnlike/{{image.photoID}}" method="get">
+                    {% if like == "Like" %}
+                    <input type="submit" value= "Like" >
+                    {% endif %}
+                    {% if like == "Liked" %}
+                    <input type="submit" value= "Unlike" >
+                    {% endif %}
+                </form>
                 <br><b>Comments:</b>
                 <br>
                 {% for comment in comments %} {{comment.username}} {{":"}} {{comment.commentText}} <br>{% endfor %}
