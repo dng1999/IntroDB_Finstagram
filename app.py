@@ -473,7 +473,6 @@ def tag():
     with connection.cursor() as cursor2:
         cursor2.execute(query2, (session["username"]))
     waiting = cursor2.fetchall()
-    print(waiting)
     return render_template("tag.html", images = data, waitlist = waiting)
 
 @app.route('/accepttag/<photoID>',methods = ["POST"])
@@ -526,7 +525,7 @@ def searchtag():
         queriesWUserName.append("CREATE VIEW groups AS SELECT filePath, photoID, timestamp FROM Photo JOIN Belong USING (groupName, groupOwner) WHERE Belong.username = %s")
         queriesWUserName.append( "CREATE VIEW following AS SELECT filePath, photoID, timestamp FROM Follow JOIN Photo ON(photoOwner=followeeUsername) WHERE followerUsername = %s AND allFollowers = '1' AND acceptedFollow = 1")
         query= "SELECT * FROM (SELECT * FROM self UNION ALL SELECT filePath, photoID, timestamp FROM groups UNION ALL SELECT filePath, photoID,timestamp FROM following)AS T ORDER BY timestamp DESC"
-        data2 = {}
+        data2 =[]
         
         with connection.cursor() as cursor:
             for i in range (len(queriesWUserName)):
@@ -535,27 +534,33 @@ def searchtag():
             data = cursor.fetchall()
             query = "DROP VIEW self, groups, following"
             cursor.execute(query)
-        if username == session["username"]:
-            query1 = "SELECT * FROM Photo JOIN Tag using (photoID) WHERE Tag.username = %s and acceptedTag = 1"
-            with connection.cursor() as cursor:
-                cursor.execute(query1, (session["username"]))
-            data2 = cursor.fetchall()
-        else:
-            with connection.cursor() as cursor:
-                query3 = "SELECT photoID FROM Photo JOIN Tag using (photoID) WHERE Tag.username = %s and acceptedTag = 1"
-                cursor.execute(query3, username)
-            data3 = cursor.fetchall()
-            for item in data3:
-                for values in data:
-                    if item['photoID'] == values['photoID']:
-                        with connection.cursor() as cursor:
-                            query3 = "SELECT * FROM Photo JOIN Tag using (photoID) WHERE Tag.username = %s and acceptedTag = 1"
-                            cursor.execute(query3, username)
-                        data2 = cursor.fetchall()
-                        #print(data2)
+        query1 = "SELECT * FROM Photo JOIN Tag using (photoID) WHERE Tag.username = %s and acceptedTag = 1"
+        with connection.cursor() as cursor:
+            cursor.execute(query1, (session["username"]))
+        data4 = cursor.fetchall()
+        for item in data4:
+            if item not in data:
+                data.append(item)
+        with connection.cursor() as cursor:
+            query3 = "SELECT photoID FROM Photo JOIN Tag using (photoID) WHERE Tag.username = %s and acceptedTag = 1"
+            cursor.execute(query3, username)
+        data3 = cursor.fetchall()
+        lst = []
+        print(data3)
+        print(data)
+        for item in data3:
+            for values in data:
+                if item['photoID'] == values['photoID']:
+                    if item['photoID'] not in lst:
+                        lst.append(item['photoID'])
+        query3 = "SELECT * FROM Photo NATURAL JOIN Tag WHERE photoID = %s and acceptedTag = 1 and username = %s"
+        with connection.cursor() as cursor:
+            for i in range(len(lst)):
+                cursor.execute(query3,(lst[i],username))
+                data5 = cursor.fetchall()
+                data2.extend(data5)
     except pymysql.Error:
         return redirect(url_for("tag"))
-    print(username)
     return render_template("searchtag.html",images = data2,user = username)
 
 
