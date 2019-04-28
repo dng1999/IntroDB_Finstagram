@@ -26,10 +26,15 @@
 
                 {% endfor %}
                 <br>
+                {% if session != image.photoOwner %}
+          
+
                 <form action="/addComment/{{image.photoID}}"  method="post">
                   <input type="text" name="comment" placeholder="Comment your feeling!" >
                   <input type="submit" value="add">
                 </form>
+
+                 {% endif %}
                 
               </td>
             </tr>

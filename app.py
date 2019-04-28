@@ -403,12 +403,16 @@ def editComment(photoID):
     with connection.cursor() as cursor:
         cursor.execute(query, (photoID))
     data = cursor.fetchone()
-    
-    query = "SELECT commentText, commentID, username FROM Comment WHERE photoID=%s AND username = %s"
-    with connection.cursor() as cursor:
-        cursor.execute(query, (photoID, session["username"]))
-        comments = cursor.fetchall()
-    return render_template("editComment.html", image=data, comments = comments)
+    if data["photoOwner"] == session["username"]:
+        query = "SELECT commentText, commentID, username FROM Comment WHERE photoID=%s ORDER BY timestamp DESC"
+        with connection.cursor() as cursor:
+            cursor.execute(query, photoID)
+    else:
+        query = "SELECT commentText, commentID, username FROM Comment WHERE photoID=%s AND username = %s ORDER BY timestamp DESC"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (photoID, session["username"]))
+    comments = cursor.fetchall()
+    return render_template("editComment.html", image=data, comments = comments, session = session["username"])
 
 
 @app.route('/addComment/<photoID>',methods = ["POST"])

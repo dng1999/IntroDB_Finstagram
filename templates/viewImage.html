@@ -34,9 +34,7 @@
                 <br><form action="/editImage/{{image.photoID}}"><input type="submit" value="Edit"></form>
                 <form action="/deleteImage/{{image.photoID}}"><input type="submit" value="Delete"></form>
                 {% endif %}
-                {% if session != image.photoOwner %}
                 <br><form action="/editComment/{{image.photoID}}"><input type="submit" value="Manage my comments"></form>
-                {% endif %}
 
               </td>
             </tr>
